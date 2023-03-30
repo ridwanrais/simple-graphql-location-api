@@ -146,7 +146,7 @@ func main() {
 	// }
 
 	// // create a MongoDB client and connect to the database
-	// client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb+srv://ridwanrais2:ebwnuXKgBdEUfVzv@cluster-location-api.a8tm3aq.mongodb.net"))
+	// client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("dummy_url"))
 	// if err != nil {
 	// 	panic(err)
 	// }
