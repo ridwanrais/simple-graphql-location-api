@@ -6,7 +6,10 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/99designs/gqlgen/graphql"
+	"github.com/ridwanrais/simple-graphql-location-api/internal/domain"
 	"github.com/ridwanrais/simple-graphql-location-api/internal/presentation/graph/model"
 )
 
@@ -14,6 +17,17 @@ import (
 func (r *queryResolver) Hello(ctx context.Context) ([]*model.Hello, error) {
 	// panic(fmt.Errorf("not implemented: Hello - hello"))
 	return r.HelloUseCase.Execute()
+}
+
+// City is the resolver for the city field.
+func (r *queryResolver) City(ctx context.Context) ([]*domain.City, error) {
+	fields := graphql.CollectAllFields(ctx)
+	return r.LocationUsecase.GetCities(ctx, fields)
+}
+
+// CityPagination is the resolver for the cityPagination field.
+func (r *queryResolver) CityPagination(ctx context.Context, first *int, after *string, last *int, before *string) (*model.CityConnection, error) {
+	panic(fmt.Errorf("not implemented: CityPagination - cityPagination"))
 }
 
 // Query returns QueryResolver implementation.

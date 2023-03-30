@@ -1,8 +1,0 @@
-type Hello {
-  id: ID!
-  text: String!
-}
-
-type Query {
-  hello: [Hello!]!
-}

@@ -1,6 +1,8 @@
 package graph
 
 import (
+	"github.com/ridwanrais/simple-graphql-location-api/config/database"
+	"github.com/ridwanrais/simple-graphql-location-api/internal/repository/mongodb"
 	"github.com/ridwanrais/simple-graphql-location-api/internal/usecase"
 )
 
@@ -9,18 +11,28 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	HelloUseCase usecase.HelloUseCase
+	HelloUseCase    usecase.HelloUseCase
+	LocationUsecase usecase.LocationUsecase
 }
 
 // func (r *Resolver) Hello(ctx context.Context) ([]*model.Hello, error) {
 // 	return r.HelloUseCase.Execute()
 // }
 
-// func NewResolver() *Resolver {
-// 	return &Resolver{
-// 		HelloUseCase: usecase.HelloUseCase{},
-// 	}
-// }
+func NewResolver(locationUsecase usecase.LocationUsecase) *Resolver {
+	return &Resolver{
+		LocationUsecase: locationUsecase,
+	}
+}
+
+func InitResolver() *Resolver {
+	db := database.InitMongoDB()
+
+	locationRepository := mongodb.NewLocationReposiotry(db)
+	locationUsecase := usecase.NewLocationUsecase(locationRepository)
+
+	return NewResolver(locationUsecase)
+}
 
 // func (r *Resolver) Mutation() graph.MutationResolver {
 // 	return &mutationResolver{r}

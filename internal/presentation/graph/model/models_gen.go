@@ -2,7 +2,28 @@
 
 package model
 
+import (
+	"github.com/ridwanrais/simple-graphql-location-api/internal/domain"
+)
+
+type CityConnection struct {
+	Edges    []*CityEdge `json:"edges"`
+	PageInfo *PageInfo   `json:"pageInfo"`
+}
+
+type CityEdge struct {
+	Node   *domain.City `json:"node"`
+	Cursor string       `json:"cursor"`
+}
+
 type Hello struct {
 	ID   string `json:"id"`
 	Text string `json:"text"`
+}
+
+type PageInfo struct {
+	HasNextPage     bool    `json:"hasNextPage"`
+	HasPreviousPage bool    `json:"hasPreviousPage"`
+	StartCursor     *string `json:"startCursor,omitempty"`
+	EndCursor       *string `json:"endCursor,omitempty"`
 }

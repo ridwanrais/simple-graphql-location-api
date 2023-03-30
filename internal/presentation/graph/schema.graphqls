@@ -1,28 +1,47 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
-type Todo {
+type Hello {
   id: ID!
   text: String!
-  done: Boolean!
-  user: User!
-}
-
-type User {
-  id: ID!
-  name: String!
 }
 
 type Query {
-  todos: [Todo!]!
+  hello: [Hello!]!
+  city: [City!]!
+  cityPagination(
+    first: Int
+    after: String
+    last: Int
+    before: String
+  ): CityConnection!
 }
 
-input NewTodo {
-  text: String!
-  userId: String!
+type City {
+  id: Int!
+  name: String!
+  countryId: Int!
+  countryName: String!
+  countryCca2: String!
+  admin1Id: Int!
+  admin1Name: String!
+  admin1Code: String!
+  latitude: String!
+  longitude: String!
+  wikiDataId: String!
 }
 
-type Mutation {
-  createTodo(input: NewTodo!): Todo!
+type CityConnection {
+  edges: [CityEdge!]!
+  pageInfo: PageInfo!
 }
+
+type CityEdge {
+  node: City!
+  cursor: String!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
