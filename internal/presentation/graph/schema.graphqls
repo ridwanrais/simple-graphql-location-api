@@ -5,8 +5,8 @@ type Hello {
 
 type Query {
   hello: [Hello!]!
-  city: [City!]!
-  cityPagination(
+  cities(filter: CityFilter): [City!]!
+  citiesPagination(
     first: Int
     after: String
     last: Int
@@ -26,6 +26,12 @@ type City {
   latitude: String!
   longitude: String!
   wikiDataId: String!
+}
+
+input CityFilter {
+  name: String
+  countryId: Int
+  admin1Code: String
 }
 
 type CityConnection {

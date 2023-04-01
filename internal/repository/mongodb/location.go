@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ridwanrais/simple-graphql-location-api/internal/domain"
 	"github.com/ridwanrais/simple-graphql-location-api/internal/repository"
@@ -15,21 +16,37 @@ type locationRepo struct {
 	db *mongo.Database
 }
 
-func NewLocationReposiotry(db *mongo.Database) repository.LocationRepository {
+func NewLocationRepository(db *mongo.Database) repository.LocationRepository {
 	return &locationRepo{
 		db: db,
 	}
 }
 
-func (r locationRepo) GetCities(ctx context.Context, fields []string) ([]*domain.City, error) {
+func (r locationRepo) GetCities(ctx context.Context, fields []string, filter domain.CityFilter) ([]*domain.City, error) {
 	projection := bson.M{}
 
 	for _, v := range fields {
 		projection[v] = 1
 	}
 
+	fmt.Println(projection)
+
+	filterCriteria := bson.M{}
+
+	if filter.Name != nil {
+		filterCriteria["name"] = *filter.Name
+	}
+
+	if filter.CountryID != nil {
+		filterCriteria["country_id"] = *filter.CountryID
+	}
+
+	if filter.Admin1Code != nil {
+		filterCriteria["admin1_code"] = *filter.Admin1Code
+	}
+
 	var cities []*domain.City
-	cursor, err := r.db.Collection("cities").Find(ctx, bson.M{}, options.Find().SetProjection(projection))
+	cursor, err := r.db.Collection("cities").Find(ctx, filterCriteria, options.Find().SetProjection(projection))
 	if err != nil {
 		logrus.WithError(err)
 		return nil, err

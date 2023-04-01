@@ -82,16 +82,16 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		City           func(childComplexity int) int
-		CityPagination func(childComplexity int, first *int, after *string, last *int, before *string) int
-		Hello          func(childComplexity int) int
+		Cities           func(childComplexity int, filter *domain.CityFilter) int
+		CitiesPagination func(childComplexity int, first *int, after *string, last *int, before *string) int
+		Hello            func(childComplexity int) int
 	}
 }
 
 type QueryResolver interface {
 	Hello(ctx context.Context) ([]*model.Hello, error)
-	City(ctx context.Context) ([]*domain.City, error)
-	CityPagination(ctx context.Context, first *int, after *string, last *int, before *string) (*model.CityConnection, error)
+	Cities(ctx context.Context, filter *domain.CityFilter) ([]*domain.City, error)
+	CitiesPagination(ctx context.Context, first *int, after *string, last *int, before *string) (*model.CityConnection, error)
 }
 
 type executableSchema struct {
@@ -256,24 +256,29 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PageInfo.StartCursor(childComplexity), true
 
-	case "Query.city":
-		if e.complexity.Query.City == nil {
+	case "Query.cities":
+		if e.complexity.Query.Cities == nil {
 			break
 		}
 
-		return e.complexity.Query.City(childComplexity), true
-
-	case "Query.cityPagination":
-		if e.complexity.Query.CityPagination == nil {
-			break
-		}
-
-		args, err := ec.field_Query_cityPagination_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_cities_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.CityPagination(childComplexity, args["first"].(*int), args["after"].(*string), args["last"].(*int), args["before"].(*string)), true
+		return e.complexity.Query.Cities(childComplexity, args["filter"].(*domain.CityFilter)), true
+
+	case "Query.citiesPagination":
+		if e.complexity.Query.CitiesPagination == nil {
+			break
+		}
+
+		args, err := ec.field_Query_citiesPagination_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.CitiesPagination(childComplexity, args["first"].(*int), args["after"].(*string), args["last"].(*int), args["before"].(*string)), true
 
 	case "Query.hello":
 		if e.complexity.Query.Hello == nil {
@@ -289,7 +294,9 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputCityFilter,
+	)
 	first := true
 
 	switch rc.Operation.Operation {
@@ -333,7 +340,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
 }
 
-//go:embed "schema.graphqls"
+//go:embed "cities.graphqls" "schema.graphqls"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -345,6 +352,7 @@ func sourceData(filename string) string {
 }
 
 var sources = []*ast.Source{
+	{Name: "cities.graphqls", Input: sourceData("cities.graphqls"), BuiltIn: false},
 	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -368,7 +376,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_cityPagination_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_citiesPagination_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -407,6 +415,21 @@ func (ec *executionContext) field_Query_cityPagination_args(ctx context.Context,
 		}
 	}
 	args["before"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_cities_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *domain.CityFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg0, err = ec.unmarshalOCityFilter2ᚖgithubᚗcomᚋridwanraisᚋsimpleᚑgraphqlᚑlocationᚑapiᚋinternalᚋdomainᚐCityFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg0
 	return args, nil
 }
 
@@ -1456,8 +1479,8 @@ func (ec *executionContext) fieldContext_Query_hello(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_city(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_city(ctx, field)
+func (ec *executionContext) _Query_cities(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_cities(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1470,7 +1493,7 @@ func (ec *executionContext) _Query_city(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().City(rctx)
+		return ec.resolvers.Query().Cities(rctx, fc.Args["filter"].(*domain.CityFilter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1487,7 +1510,7 @@ func (ec *executionContext) _Query_city(ctx context.Context, field graphql.Colle
 	return ec.marshalNCity2ᚕᚖgithubᚗcomᚋridwanraisᚋsimpleᚑgraphqlᚑlocationᚑapiᚋinternalᚋdomainᚐCityᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_city(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_cities(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1521,11 +1544,22 @@ func (ec *executionContext) fieldContext_Query_city(ctx context.Context, field g
 			return nil, fmt.Errorf("no field named %q was found under type City", field.Name)
 		},
 	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_cities_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_cityPagination(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_cityPagination(ctx, field)
+func (ec *executionContext) _Query_citiesPagination(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_citiesPagination(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1538,7 +1572,7 @@ func (ec *executionContext) _Query_cityPagination(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CityPagination(rctx, fc.Args["first"].(*int), fc.Args["after"].(*string), fc.Args["last"].(*int), fc.Args["before"].(*string))
+		return ec.resolvers.Query().CitiesPagination(rctx, fc.Args["first"].(*int), fc.Args["after"].(*string), fc.Args["last"].(*int), fc.Args["before"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1555,7 +1589,7 @@ func (ec *executionContext) _Query_cityPagination(ctx context.Context, field gra
 	return ec.marshalNCityConnection2ᚖgithubᚗcomᚋridwanraisᚋsimpleᚑgraphqlᚑlocationᚑapiᚋinternalᚋpresentationᚋgraphᚋmodelᚐCityConnection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_cityPagination(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_citiesPagination(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1578,7 +1612,7 @@ func (ec *executionContext) fieldContext_Query_cityPagination(ctx context.Contex
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_cityPagination_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_citiesPagination_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -3487,6 +3521,50 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCityFilter(ctx context.Context, obj interface{}) (domain.CityFilter, error) {
+	var it domain.CityFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "countryId", "admin1Code"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "countryId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("countryId"))
+			it.CountryID, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "admin1Code":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("admin1Code"))
+			it.Admin1Code, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3783,7 +3861,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "city":
+		case "cities":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -3792,7 +3870,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_city(ctx, field)
+				res = ec._Query_cities(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -3806,7 +3884,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "cityPagination":
+		case "citiesPagination":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -3815,7 +3893,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_cityPagination(ctx, field)
+				res = ec._Query_citiesPagination(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -4708,6 +4786,14 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOCityFilter2ᚖgithubᚗcomᚋridwanraisᚋsimpleᚑgraphqlᚑlocationᚑapiᚋinternalᚋdomainᚐCityFilter(ctx context.Context, v interface{}) (*domain.CityFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputCityFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {

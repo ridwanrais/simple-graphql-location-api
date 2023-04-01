@@ -15,19 +15,18 @@ import (
 
 // Hello is the resolver for the hello field.
 func (r *queryResolver) Hello(ctx context.Context) ([]*model.Hello, error) {
-	// panic(fmt.Errorf("not implemented: Hello - hello"))
 	return r.HelloUseCase.Execute()
 }
 
-// City is the resolver for the city field.
-func (r *queryResolver) City(ctx context.Context) ([]*domain.City, error) {
+// Cities is the resolver for the cities field.
+func (r *queryResolver) Cities(ctx context.Context, filter *domain.CityFilter) ([]*domain.City, error) {
 	fields := graphql.CollectAllFields(ctx)
-	return r.LocationUsecase.GetCities(ctx, fields)
+	return r.LocationUsecase.GetCities(ctx, fields, *filter)
 }
 
-// CityPagination is the resolver for the cityPagination field.
-func (r *queryResolver) CityPagination(ctx context.Context, first *int, after *string, last *int, before *string) (*model.CityConnection, error) {
-	panic(fmt.Errorf("not implemented: CityPagination - cityPagination"))
+// CitiesPagination is the resolver for the citiesPagination field.
+func (r *queryResolver) CitiesPagination(ctx context.Context, first *int, after *string, last *int, before *string) (*model.CityConnection, error) {
+	panic(fmt.Errorf("not implemented: CitiesPagination - citiesPagination"))
 }
 
 // Query returns QueryResolver implementation.

@@ -7,5 +7,5 @@ import (
 )
 
 type LocationRepository interface {
-	GetCities(ctx context.Context, fields []string) ([]*domain.City, error)
+	GetCities(ctx context.Context, fields []string, filter domain.CityFilter) ([]*domain.City, error)
 }

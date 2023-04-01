@@ -28,7 +28,7 @@ func NewResolver(locationUsecase usecase.LocationUsecase) *Resolver {
 func InitResolver() *Resolver {
 	db := database.InitMongoDB()
 
-	locationRepository := mongodb.NewLocationReposiotry(db)
+	locationRepository := mongodb.NewLocationRepository(db)
 	locationUsecase := usecase.NewLocationUsecase(locationRepository)
 
 	return NewResolver(locationUsecase)
