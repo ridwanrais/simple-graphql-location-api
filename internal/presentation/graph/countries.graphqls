@@ -1,0 +1,46 @@
+type Timezone {
+  zoneName: String
+  gmtOffset: Int
+  gmtOffsetName: String
+  abbreviation: String
+  tzName: String
+}
+
+type Translations {
+  kr: String
+  ptBR: String
+  pt: String
+  nl: String
+  hr: String
+  fa: String
+  de: String
+  es: String
+  fr: String
+  ja: String
+  it: String
+  cn: String
+  tr: String
+}
+
+type Country {
+  id: Int!
+  name: String!
+  iso3: String!
+  iso2: String!
+  numericCode: String!
+  phoneCode: String!
+  capital: String!
+  currency: String!
+  currencyName: String!
+  currencySymbol: String!
+  tld: String!
+  native: String!
+  region: String!
+  subregion: String!
+  timezones: [Timezone]!
+  translations: Translations!
+  latitude: String!
+  longitude: String!
+  emoji: String!
+  emojiU: String!
+}

@@ -15,10 +15,6 @@ type Resolver struct {
 	LocationUsecase usecase.LocationUsecase
 }
 
-// func (r *Resolver) Hello(ctx context.Context) ([]*model.Hello, error) {
-// 	return r.HelloUseCase.Execute()
-// }
-
 func NewResolver(locationUsecase usecase.LocationUsecase) *Resolver {
 	return &Resolver{
 		LocationUsecase: locationUsecase,
@@ -33,14 +29,3 @@ func InitResolver() *Resolver {
 
 	return NewResolver(locationUsecase)
 }
-
-// func (r *Resolver) Mutation() graph.MutationResolver {
-// 	return &mutationResolver{r}
-// }
-
-// func (r *Resolver) Query() graph.QueryResolver {
-// 	return &queryResolver{r}
-// }
-
-// type mutationResolver struct{ *Resolver }
-// type queryResolver struct{ *Resolver }

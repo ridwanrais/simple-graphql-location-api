@@ -5,6 +5,7 @@ type Hello {
 
 type Query {
   hello: [Hello!]!
+
   cities(filter: CityFilter): [City!]!
   citiesPagination(
     first: Int
@@ -12,6 +13,10 @@ type Query {
     last: Int
     before: String
   ): CityConnection!
+
+  countries: [Country]!
+
+  admin1s(filter: Admin1Filter): [Admin1!]!
 }
 
 type City {
@@ -50,4 +55,3 @@ type PageInfo {
   startCursor: String
   endCursor: String
 }
-

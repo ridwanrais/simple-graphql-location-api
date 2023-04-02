@@ -30,5 +30,21 @@ func InitMongoDB() *mongo.Database {
 	}
 
 	fmt.Println("Connected to MongoDB!")
+
+	// // specify the collection and field name to rename
+	// collection := client.Database("location_db").Collection("countries")
+	// oldFieldName := "iso2"
+	// newFieldName := "cca2"
+
+	// // update all documents in the collection with the renamed field
+	// filter := bson.M{}
+	// update := bson.M{"$rename": bson.M{oldFieldName: newFieldName}}
+	// result, err := collection.UpdateMany(ctx, filter, update)
+	// if err != nil {
+	// 	fmt.Println("Error updating documents in MongoDB:", err)
+	// }
+
+	// fmt.Printf("Modified %v documents\n", result.ModifiedCount)
+
 	return client.Database(os.Getenv("MONGODB_DATABASE"))
 }

@@ -1,0 +1,17 @@
+type Admin1 {
+  id: Int!
+  name: String!
+  countryId: Int!
+  countryName: String!
+  type: String
+  latitude: String!
+  longitude: String!
+  countryCCA2: String!
+  admin1Code: String!
+}
+
+input Admin1Filter {
+  name: String
+  countryCCA2: String
+  admin1Code: String
+}

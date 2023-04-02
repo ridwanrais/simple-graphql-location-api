@@ -29,6 +29,18 @@ func (r *queryResolver) CitiesPagination(ctx context.Context, first *int, after 
 	panic(fmt.Errorf("not implemented: CitiesPagination - citiesPagination"))
 }
 
+// Countries is the resolver for the countries field.
+func (r *queryResolver) Countries(ctx context.Context) ([]*domain.Country, error) {
+	fields := graphql.CollectAllFields(ctx)
+	return r.LocationUsecase.GetCountries(ctx, fields)
+}
+
+// Admin1s is the resolver for the admin1s field.
+func (r *queryResolver) Admin1s(ctx context.Context, filter *domain.Admin1Filter) ([]*domain.Admin1, error) {
+	fields := graphql.CollectAllFields(ctx)
+	return r.LocationUsecase.GetProvinces(ctx, fields, *filter)
+}
+
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
@@ -40,4 +52,5 @@ type queryResolver struct{ *Resolver }
 //   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
+type countryResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
