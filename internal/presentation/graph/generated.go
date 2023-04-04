@@ -104,11 +104,6 @@ type ComplexityRoot struct {
 		Translations   func(childComplexity int) int
 	}
 
-	Hello struct {
-		ID   func(childComplexity int) int
-		Text func(childComplexity int) int
-	}
-
 	PageInfo struct {
 		EndCursor       func(childComplexity int) int
 		HasNextPage     func(childComplexity int) int
@@ -121,7 +116,6 @@ type ComplexityRoot struct {
 		Cities           func(childComplexity int, filter *domain.CityFilter) int
 		CitiesPagination func(childComplexity int, first *int, after *string, last *int, before *string) int
 		Countries        func(childComplexity int) int
-		Hello            func(childComplexity int) int
 	}
 
 	Timezone struct {
@@ -150,7 +144,6 @@ type ComplexityRoot struct {
 }
 
 type QueryResolver interface {
-	Hello(ctx context.Context) ([]*model.Hello, error)
 	Cities(ctx context.Context, filter *domain.CityFilter) ([]*domain.City, error)
 	CitiesPagination(ctx context.Context, first *int, after *string, last *int, before *string) (*model.CityConnection, error)
 	Countries(ctx context.Context) ([]*domain.Country, error)
@@ -480,20 +473,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Country.Translations(childComplexity), true
 
-	case "Hello.id":
-		if e.complexity.Hello.ID == nil {
-			break
-		}
-
-		return e.complexity.Hello.ID(childComplexity), true
-
-	case "Hello.text":
-		if e.complexity.Hello.Text == nil {
-			break
-		}
-
-		return e.complexity.Hello.Text(childComplexity), true
-
 	case "PageInfo.endCursor":
 		if e.complexity.PageInfo.EndCursor == nil {
 			break
@@ -564,13 +543,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Countries(childComplexity), true
-
-	case "Query.hello":
-		if e.complexity.Query.Hello == nil {
-			break
-		}
-
-		return e.complexity.Query.Hello(childComplexity), true
 
 	case "Timezone.abbreviation":
 		if e.complexity.Timezone.Abbreviation == nil {
@@ -752,7 +724,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(parsedSchema, parsedSchema.Types[name]), nil
 }
 
-//go:embed "admin1.graphqls" "countries.graphqls" "schema.graphqls"
+//go:embed "admin1.graphqls" "cities.graphqls" "countries.graphqls" "schema.graphqls"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -765,6 +737,7 @@ func sourceData(filename string) string {
 
 var sources = []*ast.Source{
 	{Name: "admin1.graphqls", Input: sourceData("admin1.graphqls"), BuiltIn: false},
+	{Name: "cities.graphqls", Input: sourceData("cities.graphqls"), BuiltIn: false},
 	{Name: "countries.graphqls", Input: sourceData("countries.graphqls"), BuiltIn: false},
 	{Name: "schema.graphqls", Input: sourceData("schema.graphqls"), BuiltIn: false},
 }
@@ -2912,94 +2885,6 @@ func (ec *executionContext) fieldContext_Country_emojiU(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Hello_id(ctx context.Context, field graphql.CollectedField, obj *model.Hello) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Hello_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Hello_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Hello",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Hello_text(ctx context.Context, field graphql.CollectedField, obj *model.Hello) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Hello_text(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Text, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Hello_text(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Hello",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _PageInfo_hasNextPage(ctx context.Context, field graphql.CollectedField, obj *model.PageInfo) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PageInfo_hasNextPage(ctx, field)
 	if err != nil {
@@ -3165,56 +3050,6 @@ func (ec *executionContext) fieldContext_PageInfo_endCursor(ctx context.Context,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_hello(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_hello(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Hello(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Hello)
-	fc.Result = res
-	return ec.marshalNHello2ᚕᚖgithubᚗcomᚋridwanraisᚋsimpleᚑgraphqlᚑlocationᚑapiᚋinternalᚋpresentationᚋgraphᚋmodelᚐHelloᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_hello(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Hello_id(ctx, field)
-			case "text":
-				return ec.fieldContext_Hello_text(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Hello", field.Name)
 		},
 	}
 	return fc, nil
@@ -6667,41 +6502,6 @@ func (ec *executionContext) _Country(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
-var helloImplementors = []string{"Hello"}
-
-func (ec *executionContext) _Hello(ctx context.Context, sel ast.SelectionSet, obj *model.Hello) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, helloImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Hello")
-		case "id":
-
-			out.Values[i] = ec._Hello_id(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "text":
-
-			out.Values[i] = ec._Hello_text(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var pageInfoImplementors = []string{"PageInfo"}
 
 func (ec *executionContext) _PageInfo(ctx context.Context, sel ast.SelectionSet, obj *model.PageInfo) graphql.Marshaler {
@@ -6764,29 +6564,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "hello":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_hello(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return rrm(innerCtx)
-			})
 		case "cities":
 			field := field
 
@@ -7561,75 +7338,6 @@ func (ec *executionContext) marshalNCountry2ᚕᚖgithubᚗcomᚋridwanraisᚋsi
 	wg.Wait()
 
 	return ret
-}
-
-func (ec *executionContext) marshalNHello2ᚕᚖgithubᚗcomᚋridwanraisᚋsimpleᚑgraphqlᚑlocationᚑapiᚋinternalᚋpresentationᚋgraphᚋmodelᚐHelloᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Hello) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNHello2ᚖgithubᚗcomᚋridwanraisᚋsimpleᚑgraphqlᚑlocationᚑapiᚋinternalᚋpresentationᚋgraphᚋmodelᚐHello(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNHello2ᚖgithubᚗcomᚋridwanraisᚋsimpleᚑgraphqlᚑlocationᚑapiᚋinternalᚋpresentationᚋgraphᚋmodelᚐHello(ctx context.Context, sel ast.SelectionSet, v *model.Hello) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Hello(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {

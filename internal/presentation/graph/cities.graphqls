@@ -1,0 +1,38 @@
+
+
+type City {
+  id: Int!
+  name: String!
+  countryId: Int!
+  countryName: String!
+  countryCca2: String!
+  admin1Id: Int!
+  admin1Name: String!
+  admin1Code: String!
+  latitude: String!
+  longitude: String!
+  wikiDataId: String!
+}
+
+input CityFilter {
+  name: String
+  countryId: Int
+  admin1Code: String
+}
+
+type CityConnection {
+  edges: [CityEdge!]!
+  pageInfo: PageInfo!
+}
+
+type CityEdge {
+  node: City!
+  cursor: String!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}

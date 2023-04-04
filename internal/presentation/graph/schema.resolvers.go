@@ -13,11 +13,6 @@ import (
 	"github.com/ridwanrais/simple-graphql-location-api/internal/presentation/graph/model"
 )
 
-// Hello is the resolver for the hello field.
-func (r *queryResolver) Hello(ctx context.Context) ([]*model.Hello, error) {
-	return r.HelloUseCase.Execute()
-}
-
 // Cities is the resolver for the cities field.
 func (r *queryResolver) Cities(ctx context.Context, filter *domain.CityFilter) ([]*domain.City, error) {
 	fields := graphql.CollectAllFields(ctx)
@@ -52,5 +47,4 @@ type queryResolver struct{ *Resolver }
 //   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
-type countryResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }

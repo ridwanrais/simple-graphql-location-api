@@ -16,11 +16,6 @@ type CityEdge struct {
 	Cursor string       `json:"cursor"`
 }
 
-type Hello struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-}
-
 type PageInfo struct {
 	HasNextPage     bool    `json:"hasNextPage"`
 	HasPreviousPage bool    `json:"hasPreviousPage"`
